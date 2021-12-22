@@ -9,6 +9,8 @@ class Course extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function directions()
     {
         return $this->hasOne(Direction::class);

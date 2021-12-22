@@ -16,3 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get("/dbEditor/University",[\App\Http\Controllers\UniversityController::class,'index']);
+Route::post("/dbEditor/University/edit",[\App\Http\Controllers\UniversityController::class,'edit']);
+

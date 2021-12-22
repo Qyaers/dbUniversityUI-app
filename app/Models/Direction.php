@@ -9,6 +9,8 @@ class Direction extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function courses()
     {
         return $this->hasMany(Course::class);

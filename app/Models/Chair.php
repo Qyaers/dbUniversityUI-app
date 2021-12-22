@@ -9,11 +9,11 @@ class Chair extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function universities()
     {
         return $this->belongsToMany(University::class);
-
-
     }
 
     public function directions()

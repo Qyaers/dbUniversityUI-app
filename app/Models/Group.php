@@ -9,6 +9,8 @@ class Group extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     public function courses()
     {
         return $this->hasOne(Course::class);

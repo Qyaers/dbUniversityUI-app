@@ -13,7 +13,7 @@ class CreateChairsUniversitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('chairs_universities', function (Blueprint $table) {
+        Schema::create('chair_university', function (Blueprint $table) {
             $table->unsignedBigInteger("chair_id");
             $table->unsignedBigInteger("university_id");
 
@@ -29,6 +29,6 @@ class CreateChairsUniversitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chairs_universities');
+        Schema::dropIfExists('chair_university');
     }
 }
