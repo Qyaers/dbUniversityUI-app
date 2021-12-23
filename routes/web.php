@@ -17,5 +17,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get("/dbEditor/University",[\App\Http\Controllers\UniversityController::class,'index']);
-Route::post("/dbEditor/University/edit",[\App\Http\Controllers\UniversityController::class,'edit']);
+Route::get("/dbEditor/Chair",[\App\Http\Controllers\ChairController::class,'index']);
+Route::group(['middleware' => ['web']], function () {
+    Route::post("/dbEditor/University/edit",[\App\Http\Controllers\UniversityController::class,'edit']);
+    Route::post("/dbEditor/University/delete",[\App\Http\Controllers\UniversityController::class,'delete']);
+    Route::post("/dbEditor/University/add",[\App\Http\Controllers\UniversityController::class,'add']);
+    Route::post("/dbEditor/Chair/edit",[\App\Http\Controllers\ChairController::class,'edit']);
+});
 
