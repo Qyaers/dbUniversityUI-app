@@ -15,7 +15,12 @@ class CreateChairsTable extends Migration
     {
         Schema::create('chairs', function (Blueprint $table) {
             $table->id();
-            $table->string("name")->unique();
+            $table->string("name");
+            $table->unique("name");
+            $table->unsignedBigInteger('faculty_id');
+
+            $table->foreign("faculty_id")->references("id")
+                ->on("faculties");
         });
     }
 

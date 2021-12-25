@@ -9,9 +9,13 @@ class Group extends Model
 {
     use HasFactory;
 
-    public function courses()
+    protected $fillable = ['name'];
+
+    public $timestamps = false;
+
+    public function course()
     {
-        return $this->hasOne(Course::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function students()

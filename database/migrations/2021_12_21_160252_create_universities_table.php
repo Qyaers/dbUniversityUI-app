@@ -15,7 +15,8 @@ class CreateUniversitiesTable extends Migration
     {
         Schema::create('universities', function (Blueprint $table) {
             $table->id();
-            $table->string("name",100)->unique();
+            $table->string("name",100);
+            $table->unique("name");
             $table->string("address",100);
         });
     }

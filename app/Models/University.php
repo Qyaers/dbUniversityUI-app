@@ -12,8 +12,15 @@ class University extends Model
 
     protected $fillable = ["name","address"];
 
+    public $timestamps = false;
+
     public function chairs()
     {
         return $this->belongsToMany(Chair::class);
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
     }
 }
