@@ -11,7 +11,10 @@ class UniversityController extends Controller
 {
     public function index(Request $request)
     {
-        $data["universities"] = University::all()->toArray();
+        $page = $request->input('page') ?: 1;
+        $count = 3;
+        $data["universities"] = University::query()->offset($count * ($page-1))->limit($count)->get()->toArray();
+
         foreach ($data["universities"] as &$university) {
             $university["chairs"] = University::find($university["id"])->chairs()->get()->toArray();
         }
@@ -19,7 +22,9 @@ class UniversityController extends Controller
 
         return view("university", [
             "Universities" => $data["universities"],
-            "chairs" => $data["chairs"]
+            "chairs" => $data["chairs"],
+            "count_page" => ceil(University::query()->count(['id']) / $count),
+            "cur_page" => $page,
         ]);
     }
 

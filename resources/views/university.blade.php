@@ -19,6 +19,10 @@
     <input type="button" data-btn="filterElem"  value="❍">
     <br>
     <input class="findElem" type="text" style="display: none" placeholder="Введите искомый текст">
+{{--    <pre>--}}
+{{--        {{ print_r($count_page, true) }}--}}
+{{--        {{ print_r($cur_page, true)  }}--}}
+{{--    </pre>--}}
     <table class="table">
         <thead>
         <tr data-headers >
@@ -51,6 +55,29 @@
         @endforeach
         </tbody>
     </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            @if($cur_page-1 > 0)
+                <li class="page-item"><a class="page-link" href="/dbEditor/University?page={{ $cur_page-1 }}">Previous</a></li>
+            @else
+                <li class="page-item active"><span class="page-link">Previous</span></li>
+            @endif
+
+            @for($page=1; $page <= $count_page; $page++)
+                @if($page == $cur_page)
+                    <li class="page-item active"><span class="page-link">{{$page}}</span></li>
+                @else
+                    <li class="page-item"><a class="page-link" href="/dbEditor/University?page={{ $page }}">{{$page}}</a></li>
+                @endif
+            @endfor
+
+            @if($cur_page+1 <= $count_page)
+                    <li class="page-item"><a class="page-link" href="/dbEditor/University?page={{ $cur_page+1 }}">Next</a></li>
+            @else
+                    <li class="page-item active"><span class="page-link">Next</span></li>
+            @endif
+        </ul>
+    </nav>
     <template id="chairsSelect">
         <select multiple>
             @foreach($chairs as $chair)
