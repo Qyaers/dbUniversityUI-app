@@ -1,5 +1,6 @@
 /*require('./bootstrap');*/
 document.addEventListener("click",documentActions);
+document.addEventListener("keyup",documentActions);
 function isJson(str) {
     try {
         JSON.parse(str);
@@ -9,7 +10,8 @@ function isJson(str) {
     return true;
 }
 function documentActions(e) {
-    var targetElement = e.target;
+
+    let targetElement = e.target;
 
     if (targetElement.closest('[data-btn="edit"]')) {
         const curTd = targetElement.parentElement;
@@ -203,7 +205,7 @@ function documentActions(e) {
         }
     }
 
-    if(targetElement.closest('[data-btn="remove"]')) {
+    if (targetElement.closest('[data-btn="remove"]')) {
         const table = document.querySelector("table");
         let checkedElem = table.querySelectorAll("[data-checkbox]:checked");
         let delElem = Array.from(checkedElem).map(el => el.value);
@@ -225,7 +227,7 @@ function documentActions(e) {
             });
     }
 
-    if(targetElement.closest('[data-btn="newElem"]')) {
+    if (targetElement.closest('[data-btn="newElem"]')) {
 
         const table = document.querySelector("table");
         if (!table.querySelector('[data-new-elem]')) {
@@ -236,13 +238,13 @@ function documentActions(e) {
         }
     }
 
-    if(targetElement.closest('[data-btn="decline"]')) {
+    if (targetElement.closest('[data-btn="decline"]')) {
 
         let table = document.querySelector("table");
         table.querySelector('[data-new-elem]').remove();
     }
 
-    if(targetElement.closest('[data-btn="add"]')) {
+    if (targetElement.closest('[data-btn="add"]')) {
         const curTd = targetElement.parentElement;
         const tr = curTd.parentElement;
         const childs = tr.children;
@@ -286,10 +288,59 @@ function documentActions(e) {
         }
     }
 
-    if(targetElement.closest('[data-btn="search"]')) {
-        //TODO
-        console.log("search");
+    if (targetElement.closest('[data-btn="filterElem"]')) {
+        let searchElem = document.querySelector('.findElem');
+        if (searchElem.style.display == "none") {
+            searchElem.style.display= "";
+        } else {
+            searchElem.value = "";
+            // searchElem.dispatchEvent(new KeyboardEvent("keyup",{"key": "Backspace"}));
+            let table = document.querySelector('table');
+            for (let i = 1; i < table.rows.length; i++) {
+                table.rows[i].style.display = "";
+            }
+            searchElem.style.display = "none";
+        }
+    }
+
+    if (targetElement.closest('[data-select-all]')) {
+        let status = targetElement.checked;
+        let listCheckbox = document.querySelectorAll("[data-checkbox]");
+        Array.from(listCheckbox).map(el => el.checked = status);
+    }
+
+    if (targetElement.closest("[type='checkbox']")) {
+        let status = true;
+        let allCheckbox = document.querySelector("[data-select-all]");
+        let listCheckBox = document.querySelectorAll("[data-checkbox]");
+        Array.from(listCheckBox).map(el => {
+            if (!el.checked) {
+                status = false;
+            }
+        },status);
+        allCheckbox.checked = status;
+    }
+
+    if (e.type == "keyup" && targetElement.closest(".findElem")) {
+        console.log(e);
+        let phrase = document.querySelector('.findElem');
+        let table = document.querySelector('table');
+        let regPhrase = new RegExp(phrase.value, 'i');
+        let flag = false;
+        for (let i = 1; i < table.rows.length; i++) {
+            flag = false;
+            for (let j = table.rows[i].cells.length - 1; j >= 0; j--) {
+                flag = regPhrase.test(table.rows[i].cells[j].innerHTML);
+                if (flag) break;
+            }
+            if (flag) {
+                table.rows[i].style.display = "";
+            } else {
+                table.rows[i].style.display = "none";
+            }
+        }
     }
 }
+
 
 

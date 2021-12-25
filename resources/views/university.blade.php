@@ -16,7 +16,9 @@
     <h1>University</h1>
     <input type="button" data-btn="remove" value="✖">
     <input type="button" data-btn="newElem" value="✚">
-    <input type="button" data-btn="search" value="❍">
+    <input type="button" data-btn="filterElem"  value="❍">
+    <br>
+    <input class="findElem" type="text" style="display: none" placeholder="Введите искомый текст">
     <table class="table">
         <thead>
         <tr data-headers >
@@ -80,6 +82,5 @@
         </tr>
     </template>
 </div>
-
 </body>
 </html>
