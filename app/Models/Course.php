@@ -23,8 +23,8 @@ class Course extends Model
         return $this->hasMany(Group::class);
     }
 
-    public function disciplines()
+    public function programs()
     {
-        return $this->hasMany(Discipline::class);
+        return $this->hasMany(Program::class);
     }
 }
