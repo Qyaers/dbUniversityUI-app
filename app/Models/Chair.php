@@ -9,15 +9,18 @@ class Chair extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name'];
+
+    public $timestamps = false;
+
     public function universities()
     {
         return $this->belongsToMany(University::class);
-
-
     }
 
-    public function directions()
+    public function faculty()
     {
-        return $this->hasMany(Direction::class);
+        return $this->belongsTo(Faculty::class);
     }
+
 }

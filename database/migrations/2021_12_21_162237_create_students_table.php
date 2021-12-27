@@ -19,6 +19,10 @@ class CreateStudentsTable extends Migration
             $table->string("name");
             $table->string("secondName");
             $table->boolean("role")->default(false);
+            $table->unsignedBigInteger('group_id');
+
+            $table->foreign('group_id')->references('id')
+                ->on('groups');
         });
     }
 

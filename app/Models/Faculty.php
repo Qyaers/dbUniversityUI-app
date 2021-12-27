@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Student extends Model
+class Faculty extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['firstName','name','secondName','role'];
+    protected $fillable = ['name'];
 
     public $timestamps = false;
 
-    public function groups()
-    {
-        return $this->belongsTo(Group::class);
+    public function chairs() {
+
+        return $this->hasMany(Chair::class);
+
     }
 }

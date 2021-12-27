@@ -15,7 +15,15 @@ class CreateCoursesTable extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->integer("number");
+            $table->unsignedBigInteger("university_id");
+            $table->unsignedBigInteger("chair_id");
+
+            $table->foreign("university_id")->references("id")
+                ->on("universities");
+            $table->foreign("chair_id")->references("id")
+                ->on("chairs");
         });
     }
 

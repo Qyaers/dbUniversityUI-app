@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class Program extends Model
 {
     use HasFactory;
 
@@ -18,8 +18,13 @@ class Group extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function students()
+    public function subject()
     {
-        return $this->hasMany(Student::class);
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function lecturer()
+    {
+        return $this->belongsTo(Lecturer::class);
     }
 }
