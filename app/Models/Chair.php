@@ -9,7 +9,7 @@ class Chair extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["name"];
+    protected $fillable = ['name'];
 
     public $timestamps = false;
 
@@ -18,8 +18,9 @@ class Chair extends Model
         return $this->belongsToMany(University::class);
     }
 
-    public function directions()
+    public function faculty()
     {
-        return $this->hasMany(Direction::class);
+        return $this->belongsTo(Faculty::class);
     }
+
 }

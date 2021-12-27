@@ -14,7 +14,7 @@ class CourseFactory extends Factory
     public function definition()
     {
         return [
-            "number" => $this->faker->numberBetween(1,5),
+            'name' => $this->faker->bothify('??-###-#')
         ];
     }
 }

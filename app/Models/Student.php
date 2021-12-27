@@ -9,10 +9,12 @@ class Student extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['firstName','name','secondName','role'];
+
     public $timestamps = false;
 
     public function groups()
     {
-        return $this->hasOne(Group::class);
+        return $this->belongsTo(Group::class);
     }
 }

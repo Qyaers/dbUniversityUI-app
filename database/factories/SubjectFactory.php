@@ -13,10 +13,8 @@ class SubjectFactory extends Factory
      */
     public function definition()
     {
-        $this->faker = \Faker\Factory::create("ru_RU");
         return [
-            "name"=>$this->faker->unique()->word(),
-            "hours"=>$this->faker->numberBetween(36,150),
+            'name' => $this->faker->sentence(4),
         ];
     }
 }

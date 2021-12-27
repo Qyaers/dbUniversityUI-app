@@ -13,12 +13,11 @@ class LecturerFactory extends Factory
      */
     public function definition()
     {
-        $this->faker = \Faker\Factory::create("ru_RU");
         return [
-            "firstName"=>$this->faker->lastName(),
-            "name"=>$this->faker->firstName(),
-            "secondName"=>$this->faker->firstNameMale(),
-            "position"=>$this->faker->word(),
+            'firstName' => $this->faker->lastName,
+            'name' => $this->faker->firstName,
+            'secondName' => $this->faker->firstNameMale,
+            'position' => $this->faker->word,
         ];
     }
 }

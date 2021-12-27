@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class GroupFactory extends Factory
+class FacultyFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -14,7 +14,7 @@ class GroupFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word
+            'name' => $this->faker->sentence(rand(3,5)),
         ];
     }
 }

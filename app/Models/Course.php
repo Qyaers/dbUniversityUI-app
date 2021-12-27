@@ -9,11 +9,13 @@ class Course extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name', 'number'];
+
     public $timestamps = false;
 
-    public function directions()
+    public function chair()
     {
-        return $this->hasOne(Direction::class);
+        return $this->hasOne(Chair::class);
     }
 
     public function groups()
@@ -21,8 +23,8 @@ class Course extends Model
         return $this->hasMany(Group::class);
     }
 
-    public function disciplines()
+    public function programs()
     {
-        return $this->hasMany(Discipline::class);
+        return $this->hasMany(Program::class);
     }
 }

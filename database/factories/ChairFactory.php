@@ -13,9 +13,8 @@ class ChairFactory extends Factory
      */
     public function definition()
     {
-        $this->faker = \Faker\Factory::create("ru_RU");
         return [
-            'name' => $this->faker->unique()->domainWord(),
+            'name' => $this->faker->sentence(3),
         ];
     }
 }

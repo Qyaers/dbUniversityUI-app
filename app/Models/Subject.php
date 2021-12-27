@@ -9,16 +9,22 @@ class Subject extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    protected $fillable = ['name'];
 
-    public function courses()
-    {
-        return $this->belongsToMany(Course::class);
-    }
+    public $timestamps = false;
 
     public function lecturers()
     {
         return $this->belongsToMany(Lecturer::class);
     }
 
+    public function universities()
+    {
+        return $this->belongsToMany(Subject::class);
+    }
+
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
+    }
 }
