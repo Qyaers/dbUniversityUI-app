@@ -8,12 +8,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/app.js"></script>
-    <title>University</title>
+    <title>Subject</title>
 </head>
 <body>
 
 <div class="container">
-    <h1>University</h1>
+    <h1>Subject</h1>
     <input type="button" data-btn="remove" value="✖">
     <input type="button" data-btn="newElem" value="✚">
     <input type="button" data-btn="filterElem"  value="❍">
@@ -29,23 +29,24 @@
             <th scope="col"><input data-select-all type="checkbox"></th>
             <th scope="col">#</th>
             <th scope="col" data-edit-col="name" data-edit-type="input">Наименование</th>
-            <th scope="col" data-edit-col="address" data-edit-type="input">Адресс</th>
-            <th scope="col" data-edit-col="chairs" data-edit-type="select" data-edit-target="chairsSelect">Кафедра</th>
+            <th scope="col" data-edit-col="lecturers" data-edit-type="select" data-edit-target="lecturersSelect">Преподаватели</th>
             <th scope="col">Изменить</th>
         </tr>
         </thead>
         <tbody>
-        @foreach($Universities as $university)
+        @foreach($subjects as $subject)
             <tr>
-                <td><input type="checkbox" data-checkbox value="{{ $university["id"]}}"></td>
-                <td>{{ $university["id"] }}</td>
-                <td>{{ $university["name"] }}</td>
-                <td>{{ $university["address"] }}</td>
+                <td><input type="checkbox" data-checkbox value="{{ $subject["id"]}}"></td>
+                <td>{{ $subject["id"] }}</td>
+                <td>{{ $subject["name"] }}</td>
+
                 <td>
-                    @if ($university["chairs"])
+                    @if ($subject["lecturers"])
                         <ul>
-                            @foreach($university["chairs"] as $chair)
-                                <li data-id="{{$chair["id"]}}">{{$chair["name"]}}</li>
+                            @foreach($subject["lecturers"] as $lecturer)
+                                <li data-id="{{$lecturer["id"]}}">
+                                    {{$lecturer["firstName"]}} {{$lecturer["name"]}} {{$lecturer["secondName"]}}
+                                </li>
                             @endforeach
                         </ul>
                     @endif
@@ -56,10 +57,10 @@
         </tbody>
     </table>
     @include('components.pagination')
-    <template id="chairsSelect">
+    <template id="lecturersSelect">
         <select multiple>
-            @foreach($chairs as $chair)
-                <option value="{{$chair["id"]}}">{{$chair["name"]}}</option>
+            @foreach($lecturers as $lecturer)
+                <option value="{{$lecturer["id"]}}">{{$lecturer["firstName"]}} {{$lecturer["name"]}} {{$lecturer["secondName"]}}</option>
             @endforeach
         </select>
     </template>
@@ -68,11 +69,10 @@
             <td></td>
             <td></td>
             <td><input name="name" type="text"></td>
-            <td><input name="address" type="text"></td>
             <td>
-                <select multiple name="chairs">
-                    @foreach($chairs as $chair)
-                        <option value="{{$chair["id"]}}">{{$chair["name"]}}</option>
+                <select multiple name="lecturers">
+                    @foreach($lecturers as $lecturer)
+                        <option value="{{$lecturer["id"]}}">{{$lecturer["firstName"]}} {{$lecturer["name"]}} {{$lecturer["secondName"]}}</option>
                     @endforeach
                 </select>
             </td>

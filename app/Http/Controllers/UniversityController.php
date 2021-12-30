@@ -25,6 +25,7 @@ class UniversityController extends Controller
             "chairs" => $data["chairs"],
             "count_page" => ceil(University::query()->count(['id']) / $count),
             "cur_page" => $page,
+            "page_name" => "University",
         ]);
     }
 

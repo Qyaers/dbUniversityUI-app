@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Chair;
-use App\Models\Faculty;
-use App\Models\University;
+use App\Models\Lecturer;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ChairController extends Controller
+class SubjectController extends Controller
 {
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
         $count = 10;
-        $data["chairs"] = Chair::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $data["subjects"] = Subject::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
 
-        foreach ($data["chairs"] as &$chair) {
-            $chair["universities"] = Chair::find($chair["id"])->universities()->get()->toArray();
-            $chair["faculties"] = Chair::find($chair["id"])->faculty()->get()->toArray();
+        foreach ($data["subjects"] as &$subject) {
+            $subject["lecturers"] = Subject::find($subject["id"])->lecturers()->get()->toArray();
         }
-        $data["universities"] =  University::all()->sortBy('id')->toArray();
-        $data["faculties"] =  Faculty::all()->sortBy('id')->toArray();
+        $data["lecturers"] =  Lecturer::all()->sortBy('id')->toArray();
 
-        return view("chairs", [
-            "chairs" => $data["chairs"],
-            "universities" => $data["universities"],
-            "faculties" => $data["faculties"],
-            "count_page" => ceil(Chair::query()->count(['id']) / $count),
+        return view("subject", [
+            "subjects" => $data["subjects"],
+            "lecturers" => $data["lecturers"],
+            "count_page" => ceil(Subject::query()->count(['id']) / $count),
             "cur_page" => $page,
-            "page_name" => "Chair",
+            "page_name" => "Subject",
         ]);
     }
 
@@ -39,12 +35,11 @@ class ChairController extends Controller
         $update = [
             "name" => $data["name"],
         ];
-        $changeElem = Chair::query()->where("id",$data["id"])->update($update);
-
-        if ($changeElem) {
-            $result = Chair::query()->where("id",$data["id"])->get()->toArray();
-            $result["universities"] = Chair::find($data["id"])->universities()->get()->toArray();
-            $result["faculties"] = Chair::find($data["id"])->faculty()->get()->toArray();
+        $changeElem = Subject::query()->where("id",$data["id"])->update($update);
+        $changeLink = Subject::find($data["id"])->lecturers()->sync($data["lecturers"]);
+        if ($changeElem || $changeLink) {
+            $result = Subject::query()->where("id",$data["id"])->get()->toArray();
+            $result["lecturers"] = Subject::find($data["id"])->lecturers()->get()->toArray();
         } else {
             $result = ["error"=>"Ошибка изменения базы."];
         }
@@ -56,8 +51,10 @@ class ChairController extends Controller
         $deleteId = $request->toArray();
         $deleted = $error = false;
         foreach ($deleteId as $id) {
-            DB::table("chair_university")->where("chair_id","=",$id)->delete();
-            if(Chair::find($id)->delete()) {
+            DB::table("lecturer_subject")->where("subject_id","=",$id)->delete();
+            DB::table("programs")->where("subject_id","=",$id)->delete();
+            DB::table("subject_university")->where("subject_id","=",$id)->delete();
+            if(Subject::find($id)->delete()) {
                 $deleted = true;
             } else {
                 $error = true;
@@ -84,14 +81,14 @@ class ChairController extends Controller
         $newData = [
             "name" => $data["name"],
         ];
-        if (Chair::query()->where("name","=",$newData["name"])->get()->count()) {
+        if (Subject::query()->where("name","=",$newData["name"])->get()->count()) {
             return \response(json_encode([
                 "status" => "error",
                 "message" => "Такой предмет уже существует"
             ]));
         }
-        if ($newElem = Chair::firstOrCreate($newData)) {
-            Chair::find($newElem["id"])->universities()->sync($data["universities"]);
+        if ($newElem = Subject::firstOrCreate($newData)) {
+            Subject::find($newElem["id"])->lecturers()->sync($data["lecturers"]);
             return \response(json_encode($newElem));
         }
         else{

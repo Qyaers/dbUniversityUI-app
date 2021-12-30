@@ -8,28 +8,47 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/app.js"></script>
-    <title>Chairs</title>
+    <title>Chair</title>
 </head>
 <body>
 
 <div class="container">
-    <h1>Chairs</h1>
-    <input type="button" data-btn-remove value="✖">
-    <input type="button" data-btn-add value="✚">
-    <input type="button" data-btn-add value="❍">
+    <h1>Chair</h1>
+    <input type="button" data-btn="remove" value="✖">
+    <input type="button" data-btn="newElem" value="✚">
+    <input type="button" data-btn="filterElem"  value="❍">
+    <br>
+    <input class="findElem" type="text" style="display: none" placeholder="Введите искомый текст">
+    {{--    <pre>--}}
+    {{--        {{ print_r($count_page, true) }}--}}
+    {{--        {{ print_r($cur_page, true)  }}--}}
+    {{--    </pre>--}}
     <table class="table">
+        <thead>
         <tr data-headers >
-            <th scope="col"><input type="checkbox"></th>
+            <th scope="col"><input data-select-all type="checkbox"></th>
             <th scope="col">#</th>
             <th scope="col" data-edit-col="name" data-edit-type="input">Наименование</th>
-            <th scope="col" data-edit-col="university" data-edit-type="select" data-edit-target="universitySelect">Университеты</th>
+            <th scope="col" data-edit-col="faculties" data-edit-type="select" data-edit-target="facultySelect">Факультет</th>
+            <th scope="col" data-edit-col="universities" data-edit-type="select" data-edit-target="universitySelect">Университет</th>
             <th scope="col">Изменить</th>
         </tr>
+        </thead>
+        <tbody>
         @foreach($chairs as $chair)
             <tr>
-                <td><input type="checkbox" value="{{ $chair["id"]}}"></td>
+                <td><input type="checkbox" data-checkbox value="{{ $chair["id"]}}"></td>
                 <td>{{ $chair["id"] }}</td>
                 <td>{{ $chair["name"] }}</td>
+                <td>
+                    @if ($chair["faculties"])
+                        <ul>
+                            @foreach($chair["faculties"] as $faculty)
+                                <li data-id="{{$faculty["id"]}}">{{$faculty["name"]}}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </td>
                 <td>
                     @if ($chair["universities"])
                         <ul>
@@ -42,18 +61,48 @@
                 <td><input type="button" data-btn="edit" value="✎"></td>
             </tr>
         @endforeach
+        </tbody>
     </table>
-    <template id="universitySelect">
+    @include('components.pagination')
+    <template id="facultySelect">
         <select multiple>
-            @foreach($universities as $university)
-                <option value="{{$university["id"]}}">
-                    {{$university["name"]}}
-                </option>
+            @foreach($faculties as $faculty)
+                <option value="{{$faculty["id"]}}">{{$faculty["name"]}}</option>
             @endforeach
         </select>
     </template>
+    <template id="universitySelect">
+        <select multiple>
+            @foreach($universities as $university)
+                <option value="{{$university["id"]}}">{{$university["name"]}}</option>
+            @endforeach
+        </select>
+    </template>
+    <template id="addElement">
+        <tr>
+            <td></td>
+            <td></td>
+            <td><input name="name" type="text"></td>
+            <td>
+                <select multiple>
+                    @foreach($faculties as $faculty)
+                        <option value="{{$faculty["id"]}}">{{$faculty["name"]}}</option>
+                    @endforeach
+                </select>
+            </td>
+            <td>
+                <select multiple name="universities">
+                    @foreach($universities as $university)
+                        <option value="{{$university["id"]}}">{{$university["name"]}}</option>
+                    @endforeach
+                </select>
+            </td>
+            <td>
+                <input type="button" data-btn="add" value="✔">
+                <input type="button" data-btn="decline" value="✖">
+            </td>
+        </tr>
+    </template>
 </div>
-
 </body>
 </html>
-
