@@ -89,20 +89,22 @@ class ProgramController extends Controller
         $data = $request->toArray();
         $newData = [
             "hours" => $data["hours"],
-            "course_id" => $data["course_id"][0],
-            "subject_id" => $data["subject_id"][0],
-            "lecturer_id" => $data["lecturer_id"][0]
+            "course_id" => $data["courses"][0],
+            "subject_id" => $data["subjects"][0],
+            "lecturer_id" => $data["lecturers"][0]
         ];
-        if (Program::query()->where("name","=",$newData["name"])->get()->count()) {
+        if (Program::query()->where([["course_id","=",$newData["course_id"]],["subject_id","=",$newData["subject_id"]],["lecturer_id","=",$newData["lecturer_id"]]])->get()->count()) {
             return \response(json_encode([
                 "status" => "error",
-                "message" => "Такой предмет уже существует"
+                "message" => "Такой программа уже существует"
             ]));
         }
-        if ($newElem = Chair::firstOrCreate($newData)) {
-            Program::find($newElem["id"])->course()->sync($data["courses"]);
-            Program::find($newElem["id"])->subject()->sync($data["subjects"]);
-            Program::find($newElem["id"])->lecturer()->sync($data["lecturers"]);
+//        return \response(json_encode([
+//            "status" => "error",
+//            "data" => $newData,
+//        ]));
+
+        if ($newElem = Program::firstOrCreate($newData)) {
             return \response(json_encode($newElem));
         }
         else{

@@ -17,10 +17,11 @@ class CreateChairsTable extends Migration
             $table->id();
             $table->string("name");
             $table->unique("name");
-            $table->unsignedBigInteger('faculty_id');
-
-            $table->foreign("faculty_id")->references("id")
-                ->on("faculties");
+            $table->foreignId("faculty_id")->nullable()->constrained("faculties")->cascadeOnUpdate()->nullOnDelete();
+//            $table->unsignedBigInteger('faculty_id')->nullable();
+//
+//            $table->foreign("faculty_id")->references("id")
+//                ->on("faculties");
         });
     }
 

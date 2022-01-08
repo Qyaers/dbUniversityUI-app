@@ -17,13 +17,16 @@ class CreateCoursesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer("number");
-            $table->unsignedBigInteger("university_id");
-            $table->unsignedBigInteger("chair_id");
+            $table->foreignId("university_id")->nullable()->constrained("universities")->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId("chair_id")->nullable()->constrained("chairs")->cascadeOnUpdate()->nullOnDelete();
 
-            $table->foreign("university_id")->references("id")
-                ->on("universities");
-            $table->foreign("chair_id")->references("id")
-                ->on("chairs");
+//            $table->unsignedBigInteger("university_id");
+//            $table->unsignedBigInteger("chair_id");
+//
+//            $table->foreign("university_id")->references("id")
+//                ->on("universities");
+//            $table->foreign("chair_id")->references("id")
+//                ->on("chairs");
         });
     }
 

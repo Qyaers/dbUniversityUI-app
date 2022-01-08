@@ -19,10 +19,12 @@ class CreateLecturersTable extends Migration
             $table->string("name");
             $table->string("secondName");
             $table->string("position");
-            $table->unsignedBigInteger("university_id");
+            $table->foreignId("university_id")->nullable()->constrained("universities")->cascadeOnUpdate()->nullOnDelete();
 
-            $table->foreign("university_id")->references("id")
-                ->on("universities");
+//            $table->unsignedBigInteger("university_id");
+//
+//            $table->foreign("university_id")->references("id")
+//                ->on("universities");
         });
     }
 

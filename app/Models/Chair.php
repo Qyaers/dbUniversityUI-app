@@ -9,7 +9,7 @@ class Chair extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','faculty_id'];
 
     public $timestamps = false;
 

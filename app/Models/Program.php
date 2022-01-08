@@ -9,7 +9,7 @@ class Program extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['hours','course_id','subject_id','lecturer_id'];
 
     public $timestamps = false;
 

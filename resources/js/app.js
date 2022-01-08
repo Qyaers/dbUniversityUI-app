@@ -1,13 +1,22 @@
 /*require('./bootstrap');*/
 document.addEventListener("click",documentActions);
 document.addEventListener("keyup",documentActions);
-function isJson(str) {
+function isJson(item) {
+    item = typeof item !== "string"
+        ? JSON.stringify(item)
+        : item;
+
     try {
-        JSON.parse(str);
+        item = JSON.parse(item);
     } catch (e) {
         return false;
     }
-    return true;
+
+    if (typeof item === "object" && item !== null) {
+        return true;
+    }
+
+    return false;
 }
 function documentActions(e) {
 
@@ -40,10 +49,17 @@ function documentActions(e) {
                         inp.name = editFields[i].name;
                         inp.value = value;
                         inp.setAttribute("data-value",value);
+                        inp.classList.add('form-control');
                         child.append(inp);
                         break;
                     case "select":
                         let list = child.querySelectorAll("ul li");
+                        let filter = false;
+                        if (child.querySelector('ul') && child.querySelector('ul').hasAttributes('data-filter')) {
+                            filter = child.querySelector('ul').getAttribute('data-filter');
+                            filter = JSON.parse(filter);
+                            console.log(filter);
+                        }
                         let listValue = {};
                         Array.from(list).map(elem => {
                             listValue[elem.getAttribute("data-id")] = elem.innerText;
@@ -52,12 +68,18 @@ function documentActions(e) {
                         let teamplate = document.querySelector("#"+editFields[i].target);
                         let selectClone = teamplate.content.cloneNode(true);
                         Array.from(selectClone.querySelectorAll("option")).map(opt => {
+                            if (filter) {
+                                if(!filter.includes(+opt.value)){
+                                    opt.remove();
+                                }
+                            }
                             if (listValue.hasOwnProperty(opt.value)) {
                                 opt.selected = true;
                             }
-                        },listValue);
+                        },listValue,filter);
                         let select= selectClone.querySelector("select");
                         select.setAttribute("data-value",JSON.stringify(listValue));
+                        select.setAttribute("data-filter",JSON.stringify(filter));
                         select.name = editFields[i].name;
                         child.append(select);
                         break;
@@ -98,6 +120,8 @@ function documentActions(e) {
                 if (isJson(value)) {
                     value = JSON.parse(value);
                     let ul = document.createElement("ul");
+                    if (childEdit.hasAttribute('data-filter'))
+                        ul.setAttribute('data-filter',childEdit.getAttribute('data-filter'));
                     let li;
                     for (const [key, val] of Object.entries(value)) {
                         li = document.createElement("li");
@@ -177,6 +201,8 @@ function documentActions(e) {
                                     case "SELECT":
                                         let selected = childsEl[j].querySelectorAll("option:checked");
                                         let ul = document.createElement("ul");
+                                        if (childsEl[j].hasAttribute('data-filter'))
+                                            ul.setAttribute('data-filter',childsEl[j].getAttribute('data-filter'));
                                         Array.from(selected).map(opt => {
                                             let li = document.createElement("li");
                                             li.setAttribute("data-id",opt.value);
@@ -279,7 +305,7 @@ function documentActions(e) {
             })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.error) {
+                    if (res.error || res.status == "error") {
                         console.log("Error: " + res.error)
                     } else {
                         location.reload();

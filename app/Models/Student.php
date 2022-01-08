@@ -9,7 +9,7 @@ class Student extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['firstName','name','secondName','role'];
+    protected $fillable = ['firstName','name','secondName','role','group_id'];
 
     public $timestamps = false;
 

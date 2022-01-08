@@ -9,7 +9,7 @@ class Lecturer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['firstName','name','secondName','position'];
+    protected $fillable = ['firstName','name','secondName','position','university_id'];
 
     public $timestamps = false;
 

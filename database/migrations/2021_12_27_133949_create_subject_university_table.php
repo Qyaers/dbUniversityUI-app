@@ -18,8 +18,8 @@ class CreateSubjectUniversityTable extends Migration
             $table->unsignedBigInteger("subject_id");
 
             $table->primary(['university_id','subject_id']);
-            $table->foreign("university_id")->references("id")->on("universities");
-            $table->foreign("subject_id")->references("id")->on("subjects");
+            $table->foreign("university_id")->references("id")->on("universities")->onDelete("cascade");
+            $table->foreign("subject_id")->references("id")->on("subjects")->onDelete("cascade");
         });
     }
 

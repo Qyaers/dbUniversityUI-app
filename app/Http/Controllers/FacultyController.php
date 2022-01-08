@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Chair;
 use App\Models\Faculty;
-use App\Models\University;
+use App\Models\Chair;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ChairController extends Controller
+class FacultyController extends Controller
 {
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
         $count = 10;
-        $data["chairs"] = Chair::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $data["faculties"] = Faculty::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
 
-        foreach ($data["chairs"] as &$chair) {
-            $chair["universities"] = Chair::find($chair["id"])->universities()->get()->toArray();
-            $chair["faculties"] = Chair::find($chair["id"])->faculty()->get()->toArray();
+        foreach ($data["faculties"] as &$faculty) {
+            $faculty["chairs"] = Faculty::find($faculty["id"])->chairs()->get()->toArray();
         }
-        $data["universities"] =  University::all()->sortBy('id')->toArray();
-        $data["faculties"] =  Faculty::all()->sortBy('id')->toArray();
+        $data["chairs"] =  Chair::all()->sortBy('id')->toArray();
 
-        return view("chairs", [
-            "chairs" => $data["chairs"],
-            "universities" => $data["universities"],
+        return view("faculty", [
             "faculties" => $data["faculties"],
-            "count_page" => ceil(Chair::query()->count(['id']) / $count),
+            "chairs" => $data["chairs"],
+            "count_page" => ceil(Faculty::query()->count(['id']) / $count),
             "cur_page" => $page,
-            "page_name" => "Chair",
+            "page_name" => "Faculty",
         ]);
     }
 
@@ -38,14 +34,10 @@ class ChairController extends Controller
         $data = $request->toArray();
         $update = [
             "name" => $data["name"],
-            "faculty_id" => $data["faculties"][0]
         ];
-        $changeElem = Chair::query()->where("id",$data["id"])->update($update);
-
+        $changeElem = Faculty::query()->where("id",$data["id"])->update($update);
         if ($changeElem) {
-            $result = Chair::query()->where("id",$data["id"])->get()->toArray();
-            $result["universities"] = Chair::find($data["id"])->universities()->get()->toArray();
-            $result["faculties"] = Chair::find($data["id"])->faculty()->get()->toArray();
+            $result = Faculty::query()->where("id",$data["id"])->get()->toArray();
         } else {
             $result = ["error"=>"Ошибка изменения базы."];
         }
@@ -57,8 +49,7 @@ class ChairController extends Controller
         $deleteId = $request->toArray();
         $deleted = $error = false;
         foreach ($deleteId as $id) {
-            DB::table("chair_university")->where("chair_id","=",$id)->delete();
-            if(Chair::find($id)->delete()) {
+            if(Faculty::find($id)->delete()) {
                 $deleted = true;
             } else {
                 $error = true;
@@ -84,16 +75,15 @@ class ChairController extends Controller
         $data = $request->toArray();
         $newData = [
             "name" => $data["name"],
-            "faculty_id" => $data["faculties"][0]
         ];
-        if (Chair::query()->where("name","=",$newData["name"])->get()->count()) {
+        if (Faculty::query()->where("name","=",$newData["name"])->get()->count()) {
             return \response(json_encode([
                 "status" => "error",
                 "message" => "Такой предмет уже существует"
             ]));
         }
-        if ($newElem = Chair::firstOrCreate($newData)) {
-            Chair::find($newElem["id"])->universities()->sync($data["universities"]);
+        if ($newElem = Faculty::firstOrCreate($newData)) {
+
             return \response(json_encode($newElem));
         }
         else{
