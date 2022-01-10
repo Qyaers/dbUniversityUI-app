@@ -11,8 +11,29 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 50;
-        $data["students"] = Student::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getStudent =  Student::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    $getStudent->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getStudent->count(['id']);
+            $data["students"] = $getStudent->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["students"] = Student::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Student::query()->count(['id']);
+        }
 
         foreach ($data["students"] as &$student) {
             $student["group"] = Student::find($student["id"])->group()->get()->toArray();
@@ -22,9 +43,10 @@ class StudentController extends Controller
         return view("students", [
             "students" => $data["students"],
             "groups" => $data["groups"],
-            "count_page" => ceil(Student::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
-            "page_name" => "Program",
+            "page_name" => "Student",
+            "filter" => $filter,
         ]);
     }
 
