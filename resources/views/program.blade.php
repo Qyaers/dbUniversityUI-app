@@ -5,8 +5,6 @@
     <input type="button" data-btn="remove" value="✖">
     <input type="button" data-btn="newElem" value="✚">
     <input type="button" data-btn="filterElem"  value="❍">
-    <br>
-    <input class="findElem" type="text" style="display: none" placeholder="Введите искомый текст">
     <table class="table">
         <thead>
         <tr data-headers >
@@ -18,8 +16,46 @@
             <th scope="col" data-edit-col="lecturers" data-edit-type="select" data-edit-target="lecturerSelect">Преподаватель</th>
             <th scope="col">Изменить</th>
         </tr>
+        <tr data-search-filter class="findElem" style="display: none">
+            <th scope="col"></th>
+            <th scope="col"><input type="text" name="id"></th>
+            <th scope="col"><input type="text" name="hours"></th>
+            <th scope="col">
+                <select name="course_id">
+                    <option value="">-</option>
+                    @foreach($courses as $course)
+                        <option value="{{$course["id"]}}">
+                            {{$course["name"]}}
+                        </option>
+                    @endforeach
+                </select>
+            </th>
+            <th scope="col">
+                <select name="subject_id">
+                    <option value="">-</option>
+                    @foreach($subjects as $subject)
+                        <option value="{{$subject["id"]}}">
+                            {{$subject["name"]}}
+                        </option>
+                    @endforeach
+                </select>
+            </th>
+            <th scope="col">
+                <select name="lecturer_id">
+                    <option value="">-</option>
+                    @foreach($lecturers as $lecturer)
+                        <option value="{{$lecturer["id"]}}">
+                            {{$lecturer["firstName"]}} {{$lecturer["name"]}} {{$lecturer["secondName"]}}
+                        </option>
+                    @endforeach
+                </select>
+            </th>
+            <th>
+                <button data-btn="search" class="btn btn-primary">Найти</button>
+            </th>
+        </tr>
         </thead>
-        <tbody>
+        <tbody data-table-body>
         @foreach($programs as $program)
             <tr>
                 <td><input type="checkbox" data-checkbox value="{{ $program["id"]}}"></td>

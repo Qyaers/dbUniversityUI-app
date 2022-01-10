@@ -12,7 +12,7 @@ class StudentController extends Controller
     {
         $page = $request->input('page') ?: 1;
         $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
-        $count = 50;
+        $count = 10;
         $filter = '';
         if ($query) {
             $filter = '&searchField=';

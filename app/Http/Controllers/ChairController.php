@@ -13,8 +13,29 @@ class ChairController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 10;
-        $data["chairs"] = Chair::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getStudent =  Chair::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    $getStudent->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getStudent->count(['id']);
+            $data["chairs"] = $getStudent->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["chairs"] = Chair::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Chair::query()->count(['id']);
+        }
 
         foreach ($data["chairs"] as &$chair) {
             $chair["universities"] = Chair::find($chair["id"])->universities()->get()->toArray();
@@ -27,9 +48,10 @@ class ChairController extends Controller
             "chairs" => $data["chairs"],
             "universities" => $data["universities"],
             "faculties" => $data["faculties"],
-            "count_page" => ceil(Chair::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Chair",
+            "filter" => $filter,
         ]);
     }
 

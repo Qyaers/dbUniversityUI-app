@@ -411,7 +411,7 @@ async function documentActions(e) {
             data.text().then(function(html) {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(html, 'text/html');
-                let new_tbody = doc.querySelector('[data-tabale-body]');
+                let new_tbody = doc.querySelector('[data-table-body]');
                 document.querySelector('table tbody').innerHTML = new_tbody.innerHTML;
                 let new_pagenav = doc.querySelector('[data-pagination]');
                 document.querySelector('[data-pagination]').innerHTML = new_pagenav.innerHTML;

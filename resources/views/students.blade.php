@@ -45,7 +45,7 @@
             </th>
         </tr>
         </thead>
-        <tbody data-tabale-body>
+        <tbody data-table-body>
         @foreach($students as $student)
             <tr>
                 <td><input type="checkbox" data-checkbox value="{{ $student["id"]}}"></td>

@@ -12,9 +12,29 @@ class FacultyController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 10;
-        $data["faculties"] = Faculty::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
-
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getStudent =  Faculty::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    $getStudent->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getStudent->count(['id']);
+            $data["faculties"] = $getStudent->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["faculties"] = Faculty::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Faculty::query()->count(['id']);
+        }
         foreach ($data["faculties"] as &$faculty) {
             $faculty["chairs"] = Faculty::find($faculty["id"])->chairs()->get()->toArray();
         }
@@ -23,9 +43,10 @@ class FacultyController extends Controller
         return view("faculty", [
             "faculties" => $data["faculties"],
             "chairs" => $data["chairs"],
-            "count_page" => ceil(Faculty::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Faculty",
+            "filter" => $filter,
         ]);
     }
 

@@ -14,9 +14,29 @@ class ProgramController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
-        $count = 40;
-        $data["programs"] = Program::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
-
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
+        $count = 10;
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getStudent =  Program::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    $getStudent->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getStudent->count(['id']);
+            $data["programs"] = $getStudent->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["programs"] = Program::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Program::query()->count(['id']);
+        }
         foreach ($data["programs"] as &$program) {
             $program["courses"] = Program::find($program["id"])->course()->get()->toArray();
             $program["subjects"] = Program::find($program["id"])->subject()->get()->toArray();
@@ -31,9 +51,11 @@ class ProgramController extends Controller
             "courses" => $data["courses"],
             "subjects" => $data["subjects"],
             "lecturers" => $data["lecturers"],
-            "count_page" => ceil(Program::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Program",
+            "filter" => $filter,
+
         ]);
     }
 
