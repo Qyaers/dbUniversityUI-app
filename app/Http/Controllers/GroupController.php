@@ -12,9 +12,29 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 40;
-        $data["groups"] = Group::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
-
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getQuery =  Group::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    $getQuery->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getQuery->count(['id']);
+            $data["groups"] = $getQuery->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["groups"] = Group::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Group::query()->count(['id']);
+        }
         foreach ($data["groups"] as &$group) {
             $group["courses"] = Group::find($group["id"])->course()->get()->toArray();
         }
@@ -23,9 +43,10 @@ class GroupController extends Controller
         return view("group", [
             "groups" => $data["groups"],
             "courses" => $data["courses"],
-            "count_page" => ceil(Group::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Group",
+            "filter" => $filter,
         ]);
     }
 

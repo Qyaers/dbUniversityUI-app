@@ -12,8 +12,34 @@ class SubjectController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 10;
-        $data["subjects"] = Subject::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getQuery =  Subject::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    if ($column == 'lecturer_id') {
+                        $getQuery->join('lecturer_subject','lecturer_subject.subject_id','=', 'subjects.id')
+                            ->where('lecturer_subject.lecturer_id','like', $value);
+                    } else {
+                        $getQuery->where($column, 'like',
+                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    }
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getQuery->count(['id']);
+            $data["subjects"] = $getQuery->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["subjects"] = Subject::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Subject::query()->count(['id']);
+        }
 
         foreach ($data["subjects"] as &$subject) {
             $subject["lecturers"] = Subject::find($subject["id"])->lecturers()->get()->toArray();
@@ -23,9 +49,10 @@ class SubjectController extends Controller
         return view("subject", [
             "subjects" => $data["subjects"],
             "lecturers" => $data["lecturers"],
-            "count_page" => ceil(Subject::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Subject",
+            "filter" => $filter,
         ]);
     }
 

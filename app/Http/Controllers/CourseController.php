@@ -16,9 +16,35 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 10;
-        $data["courses"] = Course::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
-
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getQuery =  Course::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    if ($column == 'subject_id') {
+                        $getQuery->join('programs', 'programs.course_id', '=', 'courses.id')
+                            ->where('programs.subject_id', 'like', $value)
+                            ->distinct();
+                    } else {
+                        $getQuery->where($column, 'like',
+                            (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    }
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getQuery->count(['courses.id']);
+            $data["courses"] = $getQuery->select('courses.*')->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["courses"] = Course::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Course::query()->count(['id']);
+        }
         foreach ($data["courses"] as &$course) {
             $stream = Stream::query()->where("course_id", "=", $course["id"])->get()->toArray()[0];
             if (isset($stream["university_id"])){
@@ -36,17 +62,18 @@ class CourseController extends Controller
         }
         $data["chairs"] =  Chair::all()->sortBy('id')->toArray();
         $data["groups"] =  Group::all()->sortBy('id')->toArray();
-        $data["programs"] =  Program::all()->sortBy('id')->toArray();
+        $data["subjects"] =  Subject::all()->sortBy('id')->toArray();
 
         return view("course", [
             "courses" => $data["courses"],
             "chairs" => $data["chairs"],
             "universities" => $data["universities"],
             "groups" => $data["groups"],
-            "programs" => $data["programs"],
-            "count_page" => ceil(Course::query()->count(['id']) / $count),
+            "subjects" => $data["subjects"],
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Course",
+            "filter" => $filter,
         ]);
     }
 

@@ -13,9 +13,34 @@ class LecturerController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
         $count = 10;
-        $data["lecturers"] = Lecturer::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
-
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getQuery =  Lecturer::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    if ($column == 'subject_id') {
+                        $getQuery->join('lecturer_subject','lecturer_subject.lecturer_id','=', 'lecturers.id')
+                            ->where('lecturer_subject.subject_id','like', $value);
+                    } else {
+                        $getQuery->where($column, 'like',
+                            (stripos($column, '_id')) ? $value : '%' . $value . '%');
+                    }
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getQuery->count(['id']);
+            $data["lecturers"] = $getQuery->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["lecturers"] = Lecturer::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = Lecturer::query()->count(['id']);
+        }
         foreach ($data["lecturers"] as &$lecturer) {
             $lecturer["university"] = Lecturer::find($lecturer["id"])->university()->get()->toArray();
             $lecturer["subjects"] = Lecturer::find($lecturer["id"])->subjects()->get()->toArray();
@@ -27,9 +52,10 @@ class LecturerController extends Controller
             "lecturers" => $data["lecturers"],
             "universities" => $data["universities"],
             "subjects" => $data["subjects"],
-            "count_page" => ceil(Lecturer::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "Lecturer",
+            "filter" => $filter,
         ]);
     }
 

@@ -12,23 +12,23 @@ class StudentController extends Controller
     {
         $page = $request->input('page') ?: 1;
         $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
-        $count = 50;
+        $count = 10;
         $filter = '';
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  Student::query();
+            $getQuery =  Student::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
+                    $getQuery->where($column, 'like',
                         (stripos($column, '_id')) ? $value :'%'.$value.'%');
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["students"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["students"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["students"] = Student::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();

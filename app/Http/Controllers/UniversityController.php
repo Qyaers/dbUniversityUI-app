@@ -12,8 +12,34 @@ class   UniversityController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page') ?: 1;
-        $count = 3;
-        $data["universities"] = University::query()->offset($count * ($page-1))->limit($count)->get()->toArray();
+        $query = $request->input('searchField') ? explode(',', $request->input('searchField')) : false;
+        $count = 10;
+        $filter = '';
+        if ($query) {
+            $filter = '&searchField=';
+            $filterParams = '';
+            $getQuery =  University::query();
+            foreach ($query as $column) {
+                if ($value = $request->input($column)) {
+                    $filter .= $column . ',';
+                    $filterParams .= "&" . $column . "=" . $value;
+                    if ($column == 'chair_id') {
+                        $getQuery->join('chair_university','chair_university.university_id','=', 'universities.id')
+                            ->where('chair_university.chair_id','like', $value);
+                    } else {
+                        $getQuery->where($column, 'like',
+                            (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    }
+                }
+            }
+            $filter = trim($filter, ',') . $filterParams;
+            $allCount = $getQuery->count(['id']);
+            $data["universities"] = $getQuery->orderBy('id')
+                ->offset($count * ($page-1))->limit($count)->get()->toArray();
+        } else {
+            $data["universities"] = University::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
+            $allCount = University::query()->count(['id']);
+        }
 
         foreach ($data["universities"] as &$university) {
             $university["chairs"] = University::find($university["id"])->chairs()->get()->toArray();
@@ -23,9 +49,10 @@ class   UniversityController extends Controller
         return view("university", [
             "Universities" => $data["universities"],
             "chairs" => $data["chairs"],
-            "count_page" => ceil(University::query()->count(['id']) / $count),
+            "count_page" => ceil($allCount / $count),
             "cur_page" => $page,
             "page_name" => "University",
+            "filter" => $filter,
         ]);
     }
 

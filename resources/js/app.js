@@ -357,47 +357,48 @@ async function documentActions(e) {
     if (e.type == "click" && targetElement.closest('[data-btn="search"]')) {
         let searchTr = targetElement.parentElement.parentElement;
         let listFields = searchTr.querySelectorAll("[name]");
-        let searchData = {};
-        let strFilter = 'searchField=';
-        Array.from(listFields).map(el => {
-            switch (el.tagName) {
-                case "INPUT":
-                    switch (el.type) {
-                        case "text":
+        let strFilter = '';
+        if (listFields.length) {
+            let searchData = {};
+            let strFilter = 'searchField=';
+            Array.from(listFields).map(el => {
+                switch (el.tagName) {
+                    case "INPUT":
+                        switch (el.type) {
+                            case "text":
+                                if (el.value) {
+                                    strFilter += el.name + ',';
+                                    searchData[el.name] = el.value;
+                                }
+                                break;
+                            case "checkbox":
+                                if (el.value) {
+                                    strFilter += el.name + ',';
+                                    searchData[el.name] = el.checked;
+                                }
+                                break;
+                        }
+                        break;
+                    case "SELECT":
+                        if (el.multiple) {
+                            console.log(el.value);
+                        } else {
                             if (el.value) {
                                 strFilter += el.name + ',';
                                 searchData[el.name] = el.value;
                             }
-                            break;
-                        case "checkbox":
-                            if (el.value) {
-                                strFilter += el.name + ',';
-                                searchData[el.name] = el.checked;
-                            }
-                            break;
-                    }
-                    break;
-                case "SELECT":
-                    if (el.multiple) {
-                        console.log(el.value);
-                    } else {
-                        if (el.value) {
-                            strFilter += el.name + ',';
-                            searchData[el.name] = el.value;
                         }
-                    }
-                    break;
+                        break;
+                }
+            })
+            strFilter = strFilter.replace(/^,+|,+$/g, '')
+            for (let key in searchData) {
+                strFilter += "&" + key +"="+ searchData[key];
             }
-        })
-        strFilter = strFilter.replace(/^,+|,+$/g, '')
-       for (let key in searchData) {
-           strFilter += "&" + key +"="+ searchData[key];
         }
 
-        console.log(location)
-
         let url = location.pathname;
-        url +=  '?page=1&' + strFilter;
+        url +=  '?page=1' + (strFilter?'&'+strFilter:'');
 
         history.pushState({}, "title", url);
 
@@ -411,7 +412,7 @@ async function documentActions(e) {
             data.text().then(function(html) {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(html, 'text/html');
-                let new_tbody = doc.querySelector('[data-tabale-body]');
+                let new_tbody = doc.querySelector('[data-table-body]');
                 document.querySelector('table tbody').innerHTML = new_tbody.innerHTML;
                 let new_pagenav = doc.querySelector('[data-pagination]');
                 document.querySelector('[data-pagination]').innerHTML = new_pagenav.innerHTML;
