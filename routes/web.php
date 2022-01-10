@@ -21,6 +21,10 @@ Route::get("/dbEditor/Chair",[\App\Http\Controllers\ChairController::class,'inde
 Route::get("/dbEditor/Subject",[\App\Http\Controllers\SubjectController::class,'index']);
 Route::get("/dbEditor/Student",[\App\Http\Controllers\StudentController::class,'index']);
 Route::get("/dbEditor/Program",[\App\Http\Controllers\ProgramController::class,'index']);
+Route::get("/dbEditor/Group",[\App\Http\Controllers\GroupController::class,'index']);
+Route::get("/dbEditor/Faculty",[\App\Http\Controllers\FacultyController::class,'index']);
+Route::get("/dbEditor/Course",[\App\Http\Controllers\CourseController::class,'index']);
+Route::get("/dbEditor/Lecturer",[\App\Http\Controllers\LecturerController::class,'index']);
 
 Route::group(['middleware' => ['web']], function () {
     Route::post("/dbEditor/University/edit",[\App\Http\Controllers\UniversityController::class,'edit']);
@@ -42,5 +46,21 @@ Route::group(['middleware' => ['web']], function () {
     Route::post("/dbEditor/Program/edit",[\App\Http\Controllers\ProgramController::class,'edit']);
     Route::post("/dbEditor/Program/delete",[\App\Http\Controllers\ProgramController::class,'delete']);
     Route::post("/dbEditor/Program/add",[\App\Http\Controllers\ProgramController::class,'add']);
+
+    Route::post("/dbEditor/Group/edit",[\App\Http\Controllers\GroupController::class,'edit']);
+    Route::post("/dbEditor/Group/delete",[\App\Http\Controllers\GroupController::class,'delete']);
+    Route::post("/dbEditor/Group/add",[\App\Http\Controllers\GroupController::class,'add']);
+
+    Route::post("/dbEditor/Faculty/edit",[\App\Http\Controllers\FacultyController::class,'edit']);
+    Route::post("/dbEditor/Faculty/delete",[\App\Http\Controllers\FacultyController::class,'delete']);
+    Route::post("/dbEditor/Faculty/add",[\App\Http\Controllers\FacultyController::class,'add']);
+
+    Route::post("/dbEditor/Course/edit",[\App\Http\Controllers\CourseController::class,'edit']);
+    Route::post("/dbEditor/Course/delete",[\App\Http\Controllers\CourseController::class,'delete']);
+    Route::post("/dbEditor/Course/add",[\App\Http\Controllers\CourseController::class,'add']);
+
+    Route::post("/dbEditor/Lecturer/edit",[\App\Http\Controllers\LecturerController::class,'edit']);
+    Route::post("/dbEditor/Lecturer/delete",[\App\Http\Controllers\LecturerController::class,'delete']);
+    Route::post("/dbEditor/Lecturer/add",[\App\Http\Controllers\LecturerController::class,'add']);
 });
 

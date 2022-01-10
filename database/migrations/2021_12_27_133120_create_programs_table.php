@@ -16,13 +16,13 @@ class CreateProgramsTable extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('course_id');
-            $table->unsignedBigInteger('subject_id')->default(0);
-            $table->unsignedBigInteger('lecturer_id')->default(0);
+            $table->unsignedBigInteger('subject_id')->nullable();
+            $table->unsignedBigInteger('lecturer_id')->nullable();
             $table->integer("hours");
 
-            $table->foreign("course_id")->references("id")->on("courses");
-            $table->foreign("subject_id")->references("id")->on("subjects");
-            $table->foreign("lecturer_id")->references("id")->on("lecturers");
+            $table->foreign("course_id")->references("id")->on("courses")->onDelete("cascade");
+            $table->foreign("subject_id")->references("id")->on("subjects")->onDelete("cascade");;
+            $table->foreign("lecturer_id")->references("id")->on("lecturers")->onDelete("set null");;
         });
     }
 

@@ -1,13 +1,23 @@
 /*require('./bootstrap');*/
 document.addEventListener("click",documentActions);
 document.addEventListener("keyup",documentActions);
-function isJson(str) {
+document.addEventListener("change",documentActions);
+function isJson(item) {
+    item = typeof item !== "string"
+        ? JSON.stringify(item)
+        : item;
+
     try {
-        JSON.parse(str);
+        item = JSON.parse(item);
     } catch (e) {
         return false;
     }
-    return true;
+
+    if (typeof item === "object" && item !== null) {
+        return true;
+    }
+
+    return false;
 }
 async function documentActions(e) {
 
@@ -40,10 +50,17 @@ async function documentActions(e) {
                         inp.name = editFields[i].name;
                         inp.value = value;
                         inp.setAttribute("data-value",value);
+                        inp.classList.add('form-control');
                         child.append(inp);
                         break;
                     case "select":
                         let list = child.querySelectorAll("ul li");
+                        let filter = false;
+                        if (child.querySelector('ul') && child.querySelector('ul').hasAttributes('data-filter')) {
+                            filter = child.querySelector('ul').getAttribute('data-filter');
+                            filter = JSON.parse(filter);
+                            console.log(filter);
+                        }
                         let listValue = {};
                         Array.from(list).map(elem => {
                             listValue[elem.getAttribute("data-id")] = elem.innerText;
@@ -52,12 +69,18 @@ async function documentActions(e) {
                         let teamplate = document.querySelector("#"+editFields[i].target);
                         let selectClone = teamplate.content.cloneNode(true);
                         Array.from(selectClone.querySelectorAll("option")).map(opt => {
+                            if (filter) {
+                                if(!filter.includes(+opt.value)){
+                                    opt.remove();
+                                }
+                            }
                             if (listValue.hasOwnProperty(opt.value)) {
                                 opt.selected = true;
                             }
-                        },listValue);
+                        },listValue,filter);
                         let select= selectClone.querySelector("select");
                         select.setAttribute("data-value",JSON.stringify(listValue));
+                        select.setAttribute("data-filter",JSON.stringify(filter));
                         select.name = editFields[i].name;
                         child.append(select);
                         break;
@@ -98,6 +121,8 @@ async function documentActions(e) {
                 if (isJson(value)) {
                     value = JSON.parse(value);
                     let ul = document.createElement("ul");
+                    if (childEdit.hasAttribute('data-filter'))
+                        ul.setAttribute('data-filter',childEdit.getAttribute('data-filter'));
                     let li;
                     for (const [key, val] of Object.entries(value)) {
                         li = document.createElement("li");
@@ -177,6 +202,8 @@ async function documentActions(e) {
                                     case "SELECT":
                                         let selected = childsEl[j].querySelectorAll("option:checked");
                                         let ul = document.createElement("ul");
+                                        if (childsEl[j].hasAttribute('data-filter'))
+                                            ul.setAttribute('data-filter',childsEl[j].getAttribute('data-filter'));
                                         Array.from(selected).map(opt => {
                                             let li = document.createElement("li");
                                             li.setAttribute("data-id",opt.value);
@@ -235,6 +262,12 @@ async function documentActions(e) {
             let newTr = template.content.cloneNode(true);
             newTr.querySelector("tr").setAttribute("data-new-elem","");
             table.querySelector("tbody").prepend(newTr);
+            let tr = table.querySelector("tbody tr");
+            let filter = tr.querySelector("[data-filter-target]");
+            if (filter) {
+                var evt = new Event("change", {"bubbles":true, "cancelable":false});
+                filter.dispatchEvent(evt);
+            }
         }
     }
 
@@ -279,7 +312,7 @@ async function documentActions(e) {
             })
                 .then(res => res.json())
                 .then(res => {
-                    if (res.error) {
+                    if (res.error || res.status == "error") {
                         console.log("Error: " + res.error)
                     } else {
                         location.reload();
@@ -389,25 +422,25 @@ async function documentActions(e) {
         }
     }
 
+    if(e.type == "change" && targetElement.closest("[data-filter-target]")) {
+        let filterIds = JSON.parse(targetElement.querySelector("option:checked").getAttribute("data-filter-id"));
+        let targetName = targetElement.getAttribute("data-filter-target");
+        let target = document.querySelector(`select[name="${targetName}"]`)
+        let list = target.querySelectorAll("option");
+        let checked = false;
+        Array.from(list).map(opt => {
+            if (filterIds.includes(+opt.value)) {
+                if(!checked){
+                    opt.selected = true;
+                    checked = true;
+                }
+                opt.style.display = "block";
+            } else {
+                opt.style.display = "none";
+            }
+        },filterIds,checked);
 
-    // if (e.type == "keyup" && targetElement.closest(".findElem")) {
-    //     let phrase = document.querySelector('.findElem');
-    //     let table = document.querySelector('table');
-    //     let regPhrase = new RegExp(phrase.value, 'i');
-    //     let flag = false;
-    //     for (let i = 1; i < table.rows.length; i++) {
-    //         flag = false;
-    //         for (let j = table.rows[i].cells.length - 1; j >= 0; j--) {
-    //             flag = regPhrase.test(table.rows[i].cells[j].innerHTML);
-    //             if (flag) break;
-    //         }
-    //         if (flag) {
-    //             table.rows[i].style.display = "";
-    //         } else {
-    //             table.rows[i].style.display = "none";
-    //         }
-    //     }
-    // }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function (e) {

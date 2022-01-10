@@ -9,13 +9,13 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'number'];
+    protected $fillable = ['name', 'number',];
 
     public $timestamps = false;
 
-    public function chair()
+    public function streams()
     {
-        return $this->hasOne(Chair::class);
+        return $this->hasMany(Stream::class);
     }
 
     public function groups()

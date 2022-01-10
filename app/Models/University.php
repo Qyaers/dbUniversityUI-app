@@ -20,9 +20,9 @@ class University extends Model
         return $this->belongsToMany(Chair::class);
     }
 
-    public function courses()
+    public function streams()
     {
-        return $this->hasMany(Course::class);
+        return $this->hasMany(Stream::class);
     }
 
     public function lecturers()

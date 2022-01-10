@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class Stream extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','course_id'];
+    protected $fillable = ['course_id','chair_id','university_id'];
 
     public $timestamps = false;
 
@@ -17,9 +17,12 @@ class Group extends Model
     {
         return $this->belongsTo(Course::class);
     }
-
-    public function students()
+    public function chair()
     {
-        return $this->hasMany(Student::class);
+        return $this->belongsTo(Chair::class);
+    }
+    public function university()
+    {
+        return $this->belongsTo(University::class);
     }
 }

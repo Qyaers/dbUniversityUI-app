@@ -106,8 +106,8 @@ class StudentController extends Controller
             'role' => $data["role"][0],
             "group_id" => $data["group"][0]
         ];
-        if ($newElem = Subject::firstOrCreate($newData)) {
-            Student::find($newElem["id"])->group()->sync($data["group"]);
+        if ($newElem = Student::firstOrCreate($newData)) {
+//            Student::find($newElem["id"])->group()->sync($data["group"]);
             return \response(json_encode($newElem));
         }
         else{

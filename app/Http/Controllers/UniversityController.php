@@ -7,7 +7,7 @@ use App\Models\University;
 use App\Models\Chair;
 use Illuminate\Support\Facades\DB;
 
-class UniversityController extends Controller
+class   UniversityController extends Controller
 {
     public function index(Request $request)
     {

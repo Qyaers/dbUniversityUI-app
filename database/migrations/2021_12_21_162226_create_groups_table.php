@@ -16,11 +16,11 @@ class CreateGroupsTable extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-//            $table->unique("name");
-            $table->unsignedBigInteger("course_id");
-
-            $table->foreign("course_id")->references("id")
-                ->on("courses");
+            $table->foreignId("course_id")->nullable()->constrained("courses")->cascadeOnUpdate()->nullOnDelete();
+//            $table->unsignedBigInteger("course_id")->nullable();
+//
+//            $table->foreign("course_id")->references("id")
+//                ->on("courses")->onDelete('set null');;
         });
     }
 

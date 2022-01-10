@@ -1,19 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="/css/app.css">
-    <script src="/js/app.js"></script>
-    <title>Students</title>
-</head>
-<body>
-
+@extends("layout.main")
+@section("content")
 <div class="container">
-    <h1>Students</h1>
+    <h1>Студенты</h1>
     <input type="button" data-btn="remove" value="✖">
     <input type="button" data-btn="newElem" value="✚">
     <input type="button" data-btn="filterElem"  value="❍">
@@ -135,5 +123,4 @@
         </tr>
     </template>
 </div>
-</body>
-</html>
+@stop
