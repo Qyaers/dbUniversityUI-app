@@ -13,7 +13,7 @@ class Student extends Model
 
     public $timestamps = false;
 
-    public function groups()
+    public function group()
     {
         return $this->belongsTo(Group::class);
     }
