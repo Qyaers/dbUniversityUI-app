@@ -18,18 +18,23 @@ class   UniversityController extends Controller
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  University::query();
+            $getQuery =  University::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
-                        (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    if ($column == 'chair_id') {
+                        $getQuery->join('chair_university','chair_university.university_id','=', 'universities.id')
+                            ->where('chair_university.chair_id','like', $value);
+                    } else {
+                        $getQuery->where($column, 'like',
+                            (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    }
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["universities"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["universities"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["universities"] = University::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();

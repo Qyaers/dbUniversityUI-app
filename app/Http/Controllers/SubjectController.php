@@ -18,18 +18,23 @@ class SubjectController extends Controller
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  Subject::query();
+            $getQuery =  Subject::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
+                    if ($column == 'lecturer_id') {
+                        $getQuery->join('lecturer_subject','lecturer_subject.subject_id','=', 'subjects.id')
+                            ->where('lecturer_subject.lecturer_id','like', $value);
+                    } else {
+                        $getQuery->where($column, 'like',
                         (stripos($column, '_id')) ? $value :'%'.$value.'%');
+                    }
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["subjects"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["subjects"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["subjects"] = Subject::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();

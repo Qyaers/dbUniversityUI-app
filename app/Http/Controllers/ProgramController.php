@@ -20,18 +20,18 @@ class ProgramController extends Controller
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  Program::query();
+            $getQuery =  Program::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
+                    $getQuery->where($column, 'like',
                         (stripos($column, '_id')) ? $value :'%'.$value.'%');
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["programs"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["programs"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["programs"] = Program::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();

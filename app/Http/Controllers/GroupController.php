@@ -18,18 +18,18 @@ class GroupController extends Controller
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  Group::query();
+            $getQuery =  Group::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
+                    $getQuery->where($column, 'like',
                         (stripos($column, '_id')) ? $value :'%'.$value.'%');
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["groups"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["groups"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["groups"] = Group::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();

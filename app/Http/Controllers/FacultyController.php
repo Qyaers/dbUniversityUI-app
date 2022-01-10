@@ -18,18 +18,18 @@ class FacultyController extends Controller
         if ($query) {
             $filter = '&searchField=';
             $filterParams = '';
-            $getStudent =  Faculty::query();
+            $getQuery =  Faculty::query();
             foreach ($query as $column) {
                 if ($value = $request->input($column)) {
                     $filter .= $column . ',';
                     $filterParams .= "&" . $column . "=" . $value;
-                    $getStudent->where($column, 'like',
+                    $getQuery->where($column, 'like',
                         (stripos($column, '_id')) ? $value :'%'.$value.'%');
                 }
             }
             $filter = trim($filter, ',') . $filterParams;
-            $allCount = $getStudent->count(['id']);
-            $data["faculties"] = $getStudent->orderBy('id')
+            $allCount = $getQuery->count(['id']);
+            $data["faculties"] = $getQuery->orderBy('id')
                 ->offset($count * ($page-1))->limit($count)->get()->toArray();
         } else {
             $data["faculties"] = Faculty::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
