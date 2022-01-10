@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chair;
 use App\Models\Course;
 use App\Models\Group;
+use App\Models\Stream;
 use App\Models\Subject;
 use App\Models\Program;
 use App\Models\University;
@@ -19,14 +20,20 @@ class CourseController extends Controller
         $data["courses"] = Course::query()->orderBy('id')->offset($count * ($page-1))->limit($count)->get()->toArray();
 
         foreach ($data["courses"] as &$course) {
-            $course["universities"] = Course::find($course["id"])->university()->get()->toArray();
-            if($course["universities"])
-                $course["universityChairs"] = University::find($course["universities"][0]["id"])->chairs()->get()->pluck("id")->toArray();
-            $course["chair"] = Course::find($course["id"])->chair()->get()->toArray();
+            $stream = Stream::query()->where("course_id", "=", $course["id"])->get()->toArray()[0];
+            if (isset($stream["university_id"])){
+                $course["university"] = University::find($stream["university_id"])->toArray();
+                $course["universityChairs"] = University::find($stream["university_id"])->chairs()->get()->pluck("id")->toArray();
+            }
+            if (isset($stream["chair_id"]))
+                $course["chair"] = Chair::find($stream["chair_id"])->toArray();
             $course["groups"] = Course::find($course["id"])->groups()->get()->toArray();
             $course["programs"] = Subject::findMany(Course::find($course["id"])->programs()->get()->pluck("subject_id")->toArray())->toArray();
         }
         $data["universities"] =  University::all()->sortBy('id')->toArray();
+        foreach ($data["universities"] as &$university) {
+            $university["chairs"] = University::find($university["id"])->chairs()->get()->pluck("id")->toArray();
+        }
         $data["chairs"] =  Chair::all()->sortBy('id')->toArray();
         $data["groups"] =  Group::all()->sortBy('id')->toArray();
         $data["programs"] =  Program::all()->sortBy('id')->toArray();
@@ -49,9 +56,15 @@ class CourseController extends Controller
         $update = [
             "name" => $data["name"],
             "number" => $data["number"],
-            "chair_id" => $data["chair"][0],
         ];
-        $changeElem = Course::query()->where("id",$data["id"])->update($update);
+        if ($data["name"] || $data["number"]) {
+            $changeElem = Course::query()->where("id",$data["id"])->update($update);
+        }
+        if ($data["chair"][0]) {
+            $changeElem = Stream::query()->where("course_id","=",$data["id"])->update([
+                "chair_id" => $data["chair"][0]
+            ]);
+        }
         if ($changeElem) {
             $result = Course::query()->where("id",$data["id"])->get()->toArray();
 
@@ -60,7 +73,7 @@ class CourseController extends Controller
         }
         return \response(json_encode($result));
     }
-// TODO Не работает delete(не доделано)
+
     public function delete(Request $request)
     {
         $deleteId = $request->toArray();
@@ -94,8 +107,6 @@ class CourseController extends Controller
         $newData = [
             "name" => $data["name"],
             "number" => $data["number"],
-            "university_id" => $data["universities"][0],
-            "chair_id" => $data["chair"][0],
         ];
         if (Course::query()->where("name","=",$newData["name"])->get()->count()) {
             return \response(json_encode([
@@ -104,7 +115,12 @@ class CourseController extends Controller
             ]));
         }
         if ($newElem = Course::firstOrCreate($newData)) {
-//            Group::find($newElem["id"])->course()->sync($data["courses"]);
+            $newData = [
+                "university_id" =>$data["university"][0],
+                "chair_id" =>$data["chair"][0],
+                "course_id" =>$newElem["id"],
+            ];
+            Stream::firstOrCreate($newData);
             return \response(json_encode($newElem));
         }
         else{

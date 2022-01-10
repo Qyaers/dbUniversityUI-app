@@ -18,6 +18,11 @@ class Chair extends Model
         return $this->belongsToMany(University::class);
     }
 
+    public function streams()
+    {
+        return $this->hasMany(Stream::class);
+    }
+
     public function faculty()
     {
         return $this->belongsTo(Faculty::class);

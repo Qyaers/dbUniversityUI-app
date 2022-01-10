@@ -9,18 +9,13 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'number', 'university_id', 'chair_id'];
+    protected $fillable = ['name', 'number',];
 
     public $timestamps = false;
 
-    public function university()
+    public function streams()
     {
-        return $this->belongsTo(University::class);
-    }
-
-    public function chair()
-    {
-        return $this->belongsTo(Chair::class);
+        return $this->hasMany(Stream::class);
     }
 
     public function groups()

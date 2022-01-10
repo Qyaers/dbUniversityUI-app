@@ -28,22 +28,18 @@
                 <td>{{ $course["name"] }}</td>
                 <td>{{ $course["number"] }}</td>
                 <td>
-                    @if ($course["universities"])
+                    @if (isset($course["university"]))
                         <ul>
-                            @foreach($course["universities"] as $university)
-                                <li data-id="{{$university["id"]}}">{{$university["name"]}}</li>
-                            @endforeach
+                            <li data-id="{{$course["university"]["id"]}}">{{$course["university"]["name"]}}</li>
                         </ul>
                     @endif
                 </td>
                 <td>
-                    @if ($course["chair"])
+                    @if (isset($course["chair"]))
                         <ul @if(isset($course["universityChairs"]))
                                 data-filter="{{json_encode($course["universityChairs"])}}"
                             @endif >
-                            @foreach($course["chair"] as $chair)
-                                <li data-id="{{$chair["id"]}}">{{$chair["name"]}}</li>
-                            @endforeach
+                                <li data-id="{{$course["chair"]["id"]}}">{{$course["chair"]["name"]}}</li>
                         </ul>
                     @endif
                 </td>
@@ -76,9 +72,9 @@
             <td><input name="name" class="form-control" type="text"></td>
             <td><input name="number" class="form-control" type="text"></td>
             <td>
-                <select name="universities">
+                <select name="university" data-filter-target="chair">
                     @foreach($universities as $university)
-                        <option value="{{$university["id"]}}">{{$university["name"]}}</option>
+                        <option data-filter-id="{{json_encode($university["chairs"])}}" value="{{$university["id"]}}">{{$university["name"]}}</option>
                     @endforeach
                 </select>
             </td>

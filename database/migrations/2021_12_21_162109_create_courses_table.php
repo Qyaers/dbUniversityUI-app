@@ -17,8 +17,8 @@ class CreateCoursesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer("number");
-            $table->foreignId("university_id")->nullable()->constrained("universities")->cascadeOnUpdate()->nullOnDelete();
-            $table->foreignId("chair_id")->nullable()->constrained("chairs")->cascadeOnUpdate()->nullOnDelete();
+//            $table->foreignId("university_id")->nullable()->constrained("universities")->cascadeOnUpdate()->nullOnDelete();
+//            $table->foreignId("chair_id")->nullable()->constrained("chairs")->cascadeOnUpdate()->nullOnDelete();
 
 //            $table->unsignedBigInteger("university_id");
 //            $table->unsignedBigInteger("chair_id");

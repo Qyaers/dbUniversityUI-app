@@ -1,6 +1,7 @@
 /*require('./bootstrap');*/
 document.addEventListener("click",documentActions);
 document.addEventListener("keyup",documentActions);
+document.addEventListener("change",documentActions);
 function isJson(item) {
     item = typeof item !== "string"
         ? JSON.stringify(item)
@@ -261,6 +262,12 @@ function documentActions(e) {
             let newTr = template.content.cloneNode(true);
             newTr.querySelector("tr").setAttribute("data-new-elem","");
             table.querySelector("tbody").prepend(newTr);
+            let tr = table.querySelector("tbody tr");
+            let filter = tr.querySelector("[data-filter-target]");
+            if (filter) {
+                var evt = new Event("change", {"bubbles":true, "cancelable":false});
+                filter.dispatchEvent(evt);
+            }
         }
     }
 
@@ -365,6 +372,26 @@ function documentActions(e) {
                 table.rows[i].style.display = "none";
             }
         }
+    }
+
+    if(e.type == "change" && targetElement.closest("[data-filter-target]")) {
+        let filterIds = JSON.parse(targetElement.querySelector("option:checked").getAttribute("data-filter-id"));
+        let targetName = targetElement.getAttribute("data-filter-target");
+        let target = document.querySelector(`select[name="${targetName}"]`)
+        let list = target.querySelectorAll("option");
+        let checked = false;
+        Array.from(list).map(opt => {
+            if (filterIds.includes(+opt.value)) {
+                if(!checked){
+                    opt.selected = true;
+                    checked = true;
+                }
+                opt.style.display = "block";
+            } else {
+                opt.style.display = "none";
+            }
+        },filterIds,checked);
+
     }
 }
 

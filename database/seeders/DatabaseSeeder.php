@@ -8,6 +8,7 @@ use App\Models\Faculty;
 use App\Models\Group;
 use App\Models\Lecturer;
 use App\Models\Program;
+use App\Models\Stream;
 use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -47,7 +48,11 @@ class DatabaseSeeder extends Seeder
                 $count_courses = rand(1,6);
                 for ($c=1; $c <= $count_courses; $c++) {
                     $course = Course::factory()->state([
-                        'number' => $c,
+                        'number' => $c
+                    ])->create();
+
+                    Stream::factory()->for($course)->state([
+//                        'course_id' => $course->id,
                         'chair_id' => $chairId,
                         'university_id' => $university->id
                     ])->create();
