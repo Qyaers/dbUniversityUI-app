@@ -19,7 +19,7 @@ function isJson(item) {
 
     return false;
 }
-function documentActions(e) {
+async function documentActions(e) {
 
     let targetElement = e.target;
 
@@ -321,7 +321,7 @@ function documentActions(e) {
         }
     }
 
-    if (targetElement.closest('[data-btn="filterElem"]')) {
+    if (e.type == "click" && targetElement.closest('[data-btn="filterElem"]')) {
         let searchElem = document.querySelector('.findElem');
         if (searchElem.style.display == "none") {
             searchElem.style.display= "";
@@ -354,23 +354,71 @@ function documentActions(e) {
         allCheckbox.checked = status;
     }
 
-    if (e.type == "keyup" && targetElement.closest(".findElem")) {
-        console.log(e);
-        let phrase = document.querySelector('.findElem');
-        let table = document.querySelector('table');
-        let regPhrase = new RegExp(phrase.value, 'i');
-        let flag = false;
-        for (let i = 1; i < table.rows.length; i++) {
-            flag = false;
-            for (let j = table.rows[i].cells.length - 1; j >= 0; j--) {
-                flag = regPhrase.test(table.rows[i].cells[j].innerHTML);
-                if (flag) break;
+    if (e.type == "click" && targetElement.closest('[data-btn="search"]')) {
+        let searchTr = targetElement.parentElement.parentElement;
+        let listFields = searchTr.querySelectorAll("[name]");
+        let searchData = {};
+        let strFilter = 'searchField=';
+        Array.from(listFields).map(el => {
+            switch (el.tagName) {
+                case "INPUT":
+                    switch (el.type) {
+                        case "text":
+                            if (el.value) {
+                                strFilter += el.name + ',';
+                                searchData[el.name] = el.value;
+                            }
+                            break;
+                        case "checkbox":
+                            if (el.value) {
+                                strFilter += el.name + ',';
+                                searchData[el.name] = el.checked;
+                            }
+                            break;
+                    }
+                    break;
+                case "SELECT":
+                    if (el.multiple) {
+                        console.log(el.value);
+                    } else {
+                        if (el.value) {
+                            strFilter += el.name + ',';
+                            searchData[el.name] = el.value;
+                        }
+                    }
+                    break;
             }
-            if (flag) {
-                table.rows[i].style.display = "";
-            } else {
-                table.rows[i].style.display = "none";
-            }
+        })
+        strFilter = strFilter.replace(/^,+|,+$/g, '')
+       for (let key in searchData) {
+           strFilter += "&" + key +"="+ searchData[key];
+        }
+
+        console.log(location)
+
+        let url = location.pathname;
+        url +=  '?page=1&' + strFilter;
+
+        history.pushState({}, "title", url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+        });
+
+        if (response.ok) { // если HTTP-статус в диапазоне 200-299
+                           // получаем тело ответа (см. про этот метод ниже)
+            let data = await response;
+            data.text().then(function(html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                let new_tbody = doc.querySelector('[data-tabale-body]');
+                document.querySelector('table tbody').innerHTML = new_tbody.innerHTML;
+                let new_pagenav = doc.querySelector('[data-pagination]');
+                document.querySelector('[data-pagination]').innerHTML = new_pagenav.innerHTML;
+            });
+            console.log(data);
+        } else {
+            alert("Ошибка HTTP: " + response.status);
         }
     }
 
@@ -394,6 +442,33 @@ function documentActions(e) {
 
     }
 }
+
+document.addEventListener('DOMContentLoaded', function (e) {
+    let search = {};
+    location.search.replace('\?','').split('&').map((v,i,a) => {
+        let prop = v.split('=');
+        search[prop[0]] = decodeURI(prop[1]);
+    }, search);
+
+    if (search.hasOwnProperty('searchField')) {
+        let filter = document.querySelector('[data-search-filter]');
+        filter.style.display = '';
+        let listField = filter.querySelectorAll('[name]');
+        Array.from(listField).map(field => {
+            if (search.hasOwnProperty(field.name)) {
+                switch (field.tagName) {
+                    case "INPUT":
+                        field.value = search[field.name];
+                        break;
+                    case "SELECT":
+                        field.value = search[field.name];
+                        break;
+                }
+            }
+        })
+    }
+})
+
 
 
 

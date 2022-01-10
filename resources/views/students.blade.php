@@ -5,8 +5,6 @@
     <input type="button" data-btn="remove" value="✖">
     <input type="button" data-btn="newElem" value="✚">
     <input type="button" data-btn="filterElem"  value="❍">
-    <br>
-    <input class="findElem" type="text" style="display: none" placeholder="Введите искомый текст">
     <table class="table">
         <thead>
         <tr data-headers >
@@ -19,8 +17,35 @@
             <th scope="col" data-edit-col="group" data-edit-type="select" data-edit-target="groupSelect">Группа</th>
             <th scope="col">Изменить</th>
         </tr>
+        <tr data-search-filter class="findElem" style="display: none">
+            <th scope="col"></th>
+            <th scope="col"><input type="text" name="id"></th>
+            <th scope="col"><input type="text" name="firstName"></th>
+            <th scope="col"><input type="text" name="name"></th>
+            <th scope="col"><input type="text" name="secondName"></th>
+            <th scope="col">
+                <select name="role">
+                    <option value="">-</option>
+                    <option value="1">Староста</option>
+                    <option value="0">Студент</option>
+                </select>
+            </th>
+            <th scope="col">
+                <select name="group_id">
+                    <option value="">-</option>
+                    @foreach($groups as $group)
+                        <option value="{{$group["id"]}}">
+                            {{$group["name"]}}
+                        </option>
+                    @endforeach
+                </select>
+            </th>
+            <th scope="col">
+                <button data-btn="search" class="btn btn-primary">Найти</button>
+            </th>
+        </tr>
         </thead>
-        <tbody>
+        <tbody data-tabale-body>
         @foreach($students as $student)
             <tr>
                 <td><input type="checkbox" data-checkbox value="{{ $student["id"]}}"></td>
